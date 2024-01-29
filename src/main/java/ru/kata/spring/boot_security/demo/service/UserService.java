@@ -7,7 +7,7 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
 
-public interface UserService extends UserDetailsService {
+public interface UserService  {
     public List<User> allUsers();
 
     public User getUserById(Long id);
@@ -20,6 +20,5 @@ public interface UserService extends UserDetailsService {
 
     public void removeUser(Long id);
 
-    @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException;
+
 }
