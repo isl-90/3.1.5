@@ -60,7 +60,7 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @DeleteMapping ("users") //удаление+
+    @DeleteMapping("users") //удаление+
     public String delete(@RequestParam(value = "id", required = false) Long id) {
         userService.removeUser(id);
         return "redirect:/admin";
