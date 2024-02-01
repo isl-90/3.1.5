@@ -1,68 +1,62 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AdminController(UserService userService, RoleService roleService) {
+    public AdminController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("")
-    public String userList(Model model) { //все+
-        model.addAttribute("usersList", userService.allUsers());
-        return "index";
+    @GetMapping(value ="")
+    public String adminPanel(Model model, Principal principal) {
+        model.addAttribute("user", userService.findByEmail(principal.getName()));
+        model.addAttribute("users", userService.allUsers());
+        model.addAttribute("roleList", roleService.getAllRoles());
+        model.addAttribute("newUser", new User());
+        return "admin";
     }
 
-    @GetMapping("/create")
-    public String create(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("role", roleService.getAllRole());
-        return "create";
-    }
-
-    @PostMapping("/create")
-    public String addUser(@ModelAttribute(value = "user") User user) {
+    @PostMapping("/add")
+    public String addUser(User user) {
         userService.addUser(user);
-
         return "redirect:/admin";
     }
 
-    @GetMapping("/edit")
-    public String edit(@RequestParam(value = "id", required = false) Long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        model.addAttribute("role", roleService.getAllRole());
-        return "edit";
-    }
-
-    @PutMapping("/edit")
-    public String update(@ModelAttribute(value = "user") User user) {
-        userService.updateUser(user);
+    @PatchMapping("/edit/{id}")
+    public String updateUser(@PathVariable("id") Long id, @ModelAttribute("user") User user, @RequestParam("roles") Long[] rolesId) {
+        userService.updateUser(id, user);
         return "redirect:/admin";
     }
 
-    @DeleteMapping("users") //удаление+
-    public String delete(@RequestParam(value = "id", required = false) Long id) {
+    @DeleteMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
         userService.removeUser(id);
         return "redirect:/admin";
     }
+
 }

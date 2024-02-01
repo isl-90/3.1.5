@@ -9,11 +9,11 @@ public interface UserService {
 
     public User getUserById(Long id);
 
-    public User findUserByUsername(String name);
+    public User findByEmail(String email);
 
     public void addUser(User user);
 
-    public void updateUser(User user);
+    public void updateUser(Long id, User user);
 
     public void removeUser(Long id);
 

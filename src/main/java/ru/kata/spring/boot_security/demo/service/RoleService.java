@@ -5,8 +5,11 @@ import ru.kata.spring.boot_security.demo.models.Role;
 import java.util.Set;
 
 public interface RoleService {
-    Set<Role> getAllRole();
+    Set<Role> getAllRoles();
 
     void add(Role role);
+    void deleteById(Long id);
+
+    Role showUserById(Long id);
 
 }

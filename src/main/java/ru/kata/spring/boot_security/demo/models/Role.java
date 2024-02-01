@@ -13,26 +13,16 @@ import java.util.Objects;
 @Entity
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name")
-    private String name;
 
-    public Role(String name) {
-        this.name = name;
-    }
+    @Column(name = "role")
+    private String role;
+
 
     public Role() {
-    }
-
-    public Role(Long id) {
-        this.id = id;
-    }
-
-    public Role(Long id, String name) {
-        this.id = id;
-        this.name = name;
     }
 
     public Long getId() {
@@ -44,28 +34,44 @@ public class Role implements GrantedAuthority {
     }
 
     public String getName() {
-        return name;
+        return role;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.role = name;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public Role(String name) {
+        this.role = name;
     }
 
     @Override
     public String getAuthority() {
-        return this.name;
+        return role;
+    }
+    @Override
+    public String toString() {
+        return getName().substring(getName().indexOf('_') + 1);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Role role = (Role) o;
-        return Objects.equals(id, role.id) && Objects.equals(name, role.name);
+        Role role1 = (Role) o;
+        return Objects.equals(id, role1.id) && Objects.equals(role, role1.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, role);
     }
 }
