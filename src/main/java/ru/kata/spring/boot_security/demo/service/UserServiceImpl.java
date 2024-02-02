@@ -9,6 +9,7 @@ import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -37,9 +38,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmail(String username) {
+    public Optional<User> findByEmail(String username) {
         return userRepository.findByEmail(username);
     }
+
 
     @Transactional
     @Override
@@ -57,9 +59,14 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void updateUser(Long id, User user) {
+        User existingUser = userRepository.getById(id);
+        if (!existingUser.getPassword().equals(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         user.setId(id);
         userRepository.save(user);
     }
+
 
 
 }

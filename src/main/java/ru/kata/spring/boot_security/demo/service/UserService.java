@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.service;
 
 import ru.kata.spring.boot_security.demo.models.User;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface UserService {
@@ -9,7 +10,7 @@ public interface UserService {
 
     public User getUserById(Long id);
 
-    public User findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     public void addUser(User user);
 
