@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
+import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.HashSet;
@@ -16,12 +18,13 @@ import java.util.Set;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -33,13 +36,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long id) {
-        return userRepository.getById(id);
+    public User findById(Long id) {
+        return userRepository.findById(id).orElse(null);
     }
+
 
     @Override
     public Optional<User> findByEmail(String username) {
-        return userRepository.findByEmail(username);
+        return userRepository.findByUsername(username);
     }
 
 
@@ -56,17 +60,23 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-    @Transactional
     @Override
-    public void updateUser(Long id, User user) {
-        User existingUser = userRepository.getById(id);
-        if (!existingUser.getPassword().equals(user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-        user.setId(id);
-        userRepository.save(user);
+    public Set<Role> roleList() {
+        return new HashSet<>(roleRepository.findAll());
     }
 
-
+    @Transactional
+    @Override
+    public void updateUser(User user) {
+        User userDB = findById(user.getId());
+        if (!(passwordEncoder.matches(user.getPassword(), userDB.getPassword()))
+                && (user.getPassword() != null)
+                && !(user.getPassword().equals(""))) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+            user.setPassword(userDB.getPassword());
+        }
+        userRepository.save(user);
+    }
 
 }
